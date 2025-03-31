@@ -1,0 +1,52 @@
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 2rem;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.upload-page, .documents-page, .document-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  margin-bottom: 1.5rem;
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  font-weight: 500;
+}
+
+/* Animation for the file upload dropzone */
+.form-control[type="file"] {
+  transition: all 0.3s;
+}
+
+.form-control[type="file"]:hover {
+  border-color: #80bdff;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+}

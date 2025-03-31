@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFOCRProcessor.API", "PDFOCRProcessor.API\PDFOCRProcessor.API.csproj", "{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFOCRProcessor.Core", "PDFOCRProcessor.Core\PDFOCRProcessor.Core.csproj", "{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDFOCRProcessor.Infrastructure", "PDFOCRProcessor.Infrastructure\PDFOCRProcessor.Infrastructure.csproj", "{4FB38293-4EF0-43D2-99CA-535D84F777EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Debug|x64.Build.0 = Debug|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Debug|x86.Build.0 = Debug|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Release|x64.ActiveCfg = Release|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Release|x64.Build.0 = Release|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Release|x86.ActiveCfg = Release|Any CPU
+		{B7A85AA5-1525-4B7D-A220-5CB1071E1ECC}.Release|x86.Build.0 = Release|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Debug|x64.Build.0 = Debug|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Debug|x86.Build.0 = Debug|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Release|x64.ActiveCfg = Release|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Release|x64.Build.0 = Release|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Release|x86.ActiveCfg = Release|Any CPU
+		{21F73AD8-7EF7-4DA4-9CB9-0C0D550EFFC7}.Release|x86.Build.0 = Release|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Debug|x64.Build.0 = Debug|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Debug|x86.Build.0 = Debug|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Release|x64.ActiveCfg = Release|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Release|x64.Build.0 = Release|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Release|x86.ActiveCfg = Release|Any CPU
+		{4FB38293-4EF0-43D2-99CA-535D84F777EB}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
