@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PDFOCRProcessor.Core.Interfaces;
@@ -21,6 +22,38 @@ namespace PDFOCRProcessor.Infrastructure.Services
         {
             _logger.LogInformation("[MOCK] Processing OCR for file: {FileName}", fileName);
 
+            // Try to determine if PDF has multiple pages
+            int pageCount = 1;
+            try
+            {
+                if (pdfStream.CanSeek)
+                    pdfStream.Position = 0;
+
+                // Check if we can use iText to determine page count
+                try
+                {
+                    using (var reader = new iText.Kernel.Pdf.PdfReader(pdfStream))
+                    using (var document = new iText.Kernel.Pdf.PdfDocument(reader))
+                    {
+                        pageCount = document.GetNumberOfPages();
+                        _logger.LogInformation("[MOCK] Detected {PageCount} pages in PDF", pageCount);
+                    }
+                }
+                catch
+                {
+                    // If we can't determine page count, assume it's one page
+                    pageCount = 1;
+                }
+
+                if (pdfStream.CanSeek)
+                    pdfStream.Position = 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("[MOCK] Error checking PDF page count: {Error}", ex.Message);
+                pageCount = 1;
+            }
+
             // Simulate processing delay
             await Task.Delay(1500);
 
@@ -30,60 +63,156 @@ namespace PDFOCRProcessor.Infrastructure.Services
                 FileName = fileName,
                 IsSuccessful = true,
                 ProcessedDate = DateTime.UtcNow,
-                RawText = GenerateMockText(fileName)
+                RawText = GenerateMockText(fileName, pageCount)
             };
 
             // Add mock text blocks
-            result.TextBlocks = new List<TextBlock>
-            {
-                new TextBlock { Id = "1", Text = "INVOICE #INV-2023-001", Confidence = 0.98f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "2", Text = "Date: March 31, 2025", Confidence = 0.95f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "3", Text = "Bill To: ABC Corporation", Confidence = 0.97f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "4", Text = "123 Business Street", Confidence = 0.94f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "5", Text = "New York, NY 10001", Confidence = 0.93f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "6", Text = "Item: Software Development Services", Confidence = 0.96f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "7", Text = "Quantity: 160 hours", Confidence = 0.92f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "8", Text = "Rate: $150.00/hour", Confidence = 0.91f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "9", Text = "Subtotal: $24,000.00", Confidence = 0.94f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "10", Text = "Tax (8.875%): $2,130.00", Confidence = 0.93f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "11", Text = "Total: $26,130.00", Confidence = 0.99f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "12", Text = "Payment Due: April 30, 2025", Confidence = 0.95f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "13", Text = "Payment Method: Bank Transfer", Confidence = 0.92f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "14", Text = "Account: 123456789", Confidence = 0.90f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "15", Text = "Bank: National Bank", Confidence = 0.94f, Type = "LINE", Page = 1 },
-                new TextBlock { Id = "16", Text = "Thank you for your business!", Confidence = 0.97f, Type = "LINE", Page = 1 }
-            };
+            result.TextBlocks = GenerateMockTextBlocks(fileName, pageCount);
 
-            _logger.LogInformation("[MOCK] Successfully processed file {FileName}, created {BlockCount} mock text blocks",
-                fileName, result.TextBlocks.Count);
+            _logger.LogInformation("[MOCK] Successfully processed file {FileName}, created {BlockCount} mock text blocks for {PageCount} pages",
+                fileName, result.TextBlocks.Count, pageCount);
 
             return result;
         }
 
-        private string GenerateMockText(string fileName)
+        private List<TextBlock> GenerateMockTextBlocks(string fileName, int pageCount)
         {
-            return @"INVOICE #INV-2023-001
-Date: March 31, 2025
+            var textBlocks = new List<TextBlock>();
 
-Bill To:
-ABC Corporation
-123 Business Street
-New York, NY 10001
+            for (int page = 1; page <= pageCount; page++)
+            {
+                // Add mocked table data similar to what's in your real PDF
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_1",
+                    Text = "InvoiceNumber InvoiceDate TotalAmount VendorName",
+                    Confidence = 0.99f,
+                    Type = "LINE",
+                    Page = page
+                });
 
-Item: Software Development Services
-Quantity: 160 hours
-Rate: $150.00/hour
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_2",
+                    Text = $"NV-100{page} 2024-03-{30 + page} {1500 + page * 100}.75 ABC.LTD",
+                    Confidence = 0.97f,
+                    Type = "LINE",
+                    Page = page
+                });
 
-Subtotal: $24,000.00
-Tax (8.875%): $2,130.00
-Total: $26,130.00
+                // Add some empty space
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_3",
+                    Text = " ",
+                    Confidence = 0.99f,
+                    Type = "LINE",
+                    Page = page
+                });
 
-Payment Due: April 30, 2025
-Payment Method: Bank Transfer
-Account: 123456789
-Bank: National Bank
+                // Add tabular data (headers)
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_4",
+                    Text = "InvoiceNumber",
+                    Confidence = 0.98f,
+                    Type = "LINE",
+                    Page = page
+                });
 
-Thank you for your business!";
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_5",
+                    Text = $"NV-100{page}",
+                    Confidence = 0.98f,
+                    Type = "LINE",
+                    Page = page
+                });
+
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_6",
+                    Text = "InvoiceDate",
+                    Confidence = 0.98f,
+                    Type = "LINE",
+                    Page = page
+                });
+
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_7",
+                    Text = $"2024-03-{30 + page}",
+                    Confidence = 0.97f,
+                    Type = "LINE",
+                    Page = page
+                });
+
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_8",
+                    Text = "TotalAmount",
+                    Confidence = 0.98f,
+                    Type = "LINE",
+                    Page = page
+                });
+
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_9",
+                    Text = $"{1500 + page * 100}.75",
+                    Confidence = 0.96f,
+                    Type = "LINE",
+                    Page = page
+                });
+
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_10",
+                    Text = "VendorName",
+                    Confidence = 0.98f,
+                    Type = "LINE",
+                    Page = page
+                });
+
+                textBlocks.Add(new TextBlock
+                {
+                    Id = $"p{page}_11",
+                    Text = $"ABC{page}.LTD",
+                    Confidence = 0.95f,
+                    Type = "LINE",
+                    Page = page
+                });
+            }
+
+            return textBlocks;
+        }
+
+        private string GenerateMockText(string fileName, int pageCount)
+        {
+            StringBuilder mockText = new StringBuilder();
+
+            for (int page = 1; page <= pageCount; page++)
+            {
+                mockText.AppendLine($"InvoiceNumber InvoiceDate TotalAmount VendorName");
+                mockText.AppendLine($"NV-100{page} 2024-03-{30 + page} {1500 + page * 100}.75 ABC{page}.LTD");
+                mockText.AppendLine();
+                mockText.AppendLine("InvoiceNumber");
+                mockText.AppendLine($"NV-100{page}");
+                mockText.AppendLine("InvoiceDate");
+                mockText.AppendLine($"2024-03-{30 + page}");
+                mockText.AppendLine("TotalAmount");
+                mockText.AppendLine($"{1500 + page * 100}.75");
+                mockText.AppendLine("VendorName");
+                mockText.AppendLine($"ABC{page}.LTD");
+
+                // Add page separator if not the last page
+                if (page < pageCount)
+                {
+                    mockText.AppendLine("\n--- Page Break ---\n");
+                }
+            }
+
+            return mockText.ToString();
         }
     }
 }

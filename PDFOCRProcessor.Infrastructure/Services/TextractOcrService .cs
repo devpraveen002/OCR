@@ -22,11 +22,94 @@ namespace PDFOCRProcessor.Infrastructure.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        //public async Task<OcrResult> ProcessPdfAsync(Stream pdfStream, string fileName)
+        //{
+        //    try
+        //    {
+        //        _logger.LogInformation("Starting OCR processing for file: {FileName}", fileName);
+
+        //        // Preprocess the PDF file to ensure it's in a format Textract accepts
+        //        using var processedPdfStream = PreprocessPdf(pdfStream);
+
+        //        // Read the PDF file into a byte array
+        //        using var memoryStream = new MemoryStream();
+        //        await processedPdfStream.CopyToAsync(memoryStream);
+        //        byte[] fileBytes = memoryStream.ToArray();
+
+        //        // Create request for Textract
+        //        var request = new DetectDocumentTextRequest
+        //        {
+        //            Document = new Document
+        //            {
+        //                Bytes = new MemoryStream(fileBytes)
+        //            }
+        //        };
+
+        //        // Process with Textract
+        //        var response = await _textractClient.DetectDocumentTextAsync(request);
+
+        //        // Process the response
+        //        var result = new OcrResult
+        //        {
+        //            FileName = fileName,
+        //            IsSuccessful = true,
+        //            ProcessedDate = DateTime.UtcNow,
+        //            RawText = ExtractRawText(response.Blocks),
+        //            TextBlocks = MapTextBlocks(response.Blocks)
+        //        };
+
+        //        _logger.LogInformation("Successfully processed file {FileName}, extracted {BlockCount} text blocks",
+        //            fileName, result.TextBlocks.Count);
+
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error processing PDF with Textract: {FileName}", fileName);
+        //        return new OcrResult
+        //        {
+        //            FileName = fileName,
+        //            IsSuccessful = false,
+        //            ErrorMessage = $"OCR processing failed: {ex.Message}",
+        //            ProcessedDate = DateTime.UtcNow
+        //        };
+        //    }
+        //}
         public async Task<OcrResult> ProcessPdfAsync(Stream pdfStream, string fileName)
         {
             try
             {
                 _logger.LogInformation("Starting OCR processing for file: {FileName}", fileName);
+
+                // Check if it's a multi-page PDF (just for logging)
+                bool isMultiPage = false;
+                try
+                {
+                    if (pdfStream.CanSeek)
+                        pdfStream.Position = 0;
+
+                    using (var reader = new PdfReader(pdfStream))
+                    using (var document = new PdfDocument(reader))
+                    {
+                        int pageCount = document.GetNumberOfPages();
+                        isMultiPage = pageCount > 1;
+
+                        if (isMultiPage)
+                        {
+                            _logger.LogWarning("Multi-page PDF detected ({PageCount} pages). Note: Only the first page may be processed fully.", pageCount);
+                        }
+                    }
+
+                    if (pdfStream.CanSeek)
+                        pdfStream.Position = 0;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Error checking PDF page count: {Error}", ex.Message);
+                }
+
+                // Proceed with normal processing - Textract's DetectDocumentText API can handle
+                // some multi-page PDFs, but might only process the first page effectively
 
                 // Preprocess the PDF file to ensure it's in a format Textract accepts
                 using var processedPdfStream = PreprocessPdf(pdfStream);
@@ -66,6 +149,9 @@ namespace PDFOCRProcessor.Infrastructure.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing PDF with Textract: {FileName}", fileName);
+
+                // For your interview, a simple approach is to return a failed result
+                // Later you could add a fallback to mock data if desired
                 return new OcrResult
                 {
                     FileName = fileName,
@@ -84,15 +170,36 @@ namespace PDFOCRProcessor.Infrastructure.Services
                 if (pdfStream.CanSeek)
                     pdfStream.Position = 0;
 
-                // Use iText7 to recreate the PDF, which can fix many issues
+                // Create output stream
                 var outputStream = new MemoryStream();
+
+                // Use iText7 to process the PDF
                 using (var reader = new PdfReader(pdfStream))
+                using (var writer = new PdfWriter(outputStream))
                 {
-                    using (var writer = new PdfWriter(outputStream))
+                    using (var srcDocument = new PdfDocument(reader))
                     {
-                        using (var pdf = new PdfDocument(reader, writer))
+                        // Check if it's multi-page
+                        int pageCount = srcDocument.GetNumberOfPages();
+
+                        if (pageCount > 1)
                         {
-                            // This forces a rewrite of the PDF
+                            // For multi-page documents, extract just the first page
+                            _logger.LogInformation("Extracting only the first page from a {PageCount}-page document", pageCount);
+
+                            using (var destDocument = new PdfDocument(writer))
+                            {
+                                // Copy just the first page
+                                srcDocument.CopyPagesTo(1, 1, destDocument);
+                            }
+                        }
+                        else
+                        {
+                            // For single-page documents, just rewrite the PDF
+                            using (var _ = new PdfDocument(reader, writer))
+                            {
+                                // The constructor alone copies the content
+                            }
                         }
                     }
                 }
