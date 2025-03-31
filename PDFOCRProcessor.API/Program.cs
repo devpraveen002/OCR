@@ -45,26 +45,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure AWS services
-//builder.Services.AddSingleton<AmazonTextractClient>(_ =>
-//    new AmazonTextractClient(
-//        builder.Configuration["AWS:AccessKey"],
-//        builder.Configuration["AWS:SecretKey"],
-//        RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
+//Configure AWS services
+builder.Services.AddSingleton<AmazonTextractClient>(_ =>
+    new AmazonTextractClient(
+        builder.Configuration["AWS:AccessKey"],
+        builder.Configuration["AWS:SecretKey"],
+        RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
 
-if (builder.Configuration.GetValue<bool>("UseAWS"))
-{
-    builder.Services.AddSingleton<AmazonTextractClient>(_ =>
-        new AmazonTextractClient(
-            builder.Configuration["AWS:AccessKey"],
-            builder.Configuration["AWS:SecretKey"],
-            RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
-    builder.Services.AddScoped<IOcrService, TextractOcrService>();
-}
-else
-{
-    builder.Services.AddScoped<IOcrService, MockOcrService>();
-}
+//if (builder.Configuration.GetValue<bool>("UseAWS"))
+//{
+//    builder.Services.AddSingleton<AmazonTextractClient>(_ =>
+//        new AmazonTextractClient(
+//            builder.Configuration["AWS:AccessKey"],
+//            builder.Configuration["AWS:SecretKey"],
+//            RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
+//    builder.Services.AddScoped<IOcrService, TextractOcrService>();
+//}
+//else
+//{
+//    builder.Services.AddScoped<IOcrService, MockOcrService>();
+//}
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -78,7 +78,7 @@ builder.Services.AddCors(options =>
 });
 
 // Register services
-//builder.Services.AddScoped<IOcrService, TextractOcrService>();
+builder.Services.AddScoped<IOcrService, TextractOcrService>();
 //builder.Services.AddScoped<IOcrService, MockOcrService>();
 builder.Services.AddScoped<ITextProcessor, TextProcessor>();
 builder.Services.AddScoped<IDocumentFormatter, DocumentFormatter>();
