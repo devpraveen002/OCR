@@ -36,6 +36,9 @@ dotnet add PDFOCRProcessor.API package Swashbuckle.AspNetCore
 #Migration
 dotnet ef migrations add InitialCreate --project PDFOCRProcessor.Infrastructure --startup-project PDFOCRProcessor.API
 dotnet ef database update --project PDFOCRProcessor.Infrastructure --startup-project PDFOCRProcessor.API
+
+#DbScripts
+dotnet ef migrations script --project PDFOCRProcessor.Infrastructure --startup-project PDFOCRProcessor.API -o DbScripts\FreshSetupRepoDb20240213.sql
 ```
 
 3. 

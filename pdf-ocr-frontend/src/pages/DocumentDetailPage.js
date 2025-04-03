@@ -29,7 +29,8 @@ import { API_URL } from '../config';
 
 const DocumentDetailPage = () => {
   const { id } = useParams();
-  const [document, setDocument] = useState(null);
+  // const [document, setDocument] = useState(null);
+  const [documentData, setDocumentData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [jsonData, setJsonData] = useState('');
@@ -44,7 +45,8 @@ const DocumentDetailPage = () => {
       const response = await axios.get(
         `${API_URL}/api/documents/${id}`
       );
-      setDocument(response.data);
+      // setDocument(response.data);
+      setDocumentData(response.data);
       
       // Fetch JSON data
       const jsonResponse = await axios.get(
@@ -62,33 +64,62 @@ const DocumentDetailPage = () => {
     }
   };
   
-  const handleDownloadJson = () => {
-    const element = document.createElement('a');
-    const file = new Blob([jsonData], { type: 'application/json' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${document.fileName.replace('.pdf', '')}.json`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  const handleDownloadJson = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/documents/${id}/json`, 
+        { responseType: 'text' }
+      );
+      
+      // Create a Blob from the text response
+      const blob = new Blob([response.data], { type: 'application/json' });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${documentData.fileName.replace('.pdf', '')}_data.json`;
+      
+      // Append to body, click, and clean up
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    } catch (err) {
+      console.error("Error downloading JSON:", err);
+      alert("Failed to download JSON file: " + (err.message || "Unknown error"));
+    }
   };
+  
   
   const handleDownloadCsv = async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/api/documents/${id}/csv`,
-        { responseType: 'blob' }
+        `${API_URL}/api/documents/${id}/csv`, 
+        { responseType: 'text' }
       );
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      // Create a Blob from the text response
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${document.fileName.replace('.pdf', '')}.csv`);
+      link.download = `${documentData.fileName.replace('.pdf', '')}_data.csv`;
+      
+      // Append to body, click, and clean up
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
     } catch (err) {
-      setError('Failed to download CSV');
-      console.error(err);
+      console.error("Error downloading CSV:", err);
+      alert("Failed to download CSV file: " + (err.message || "Unknown error"));
     }
   };
   
@@ -123,7 +154,7 @@ const DocumentDetailPage = () => {
     );
   }
   
-  if (!document) {
+  if (!documentData) {
     return (
       <Alert variant="warning">
         <Alert.Heading>Document Not Found</Alert.Heading>
@@ -143,7 +174,7 @@ const DocumentDetailPage = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>
           <FontAwesomeIcon icon={faFileAlt} className="me-2 text-primary" />
-          {document.fileName}
+          {documentData.fileName}
         </h2>
         
         <Link to="/documents" className="btn btn-outline-secondary">
@@ -164,7 +195,7 @@ const DocumentDetailPage = () => {
                 </ListGroup.Item>
                 <ListGroup.Item>
                   <strong>Status:</strong>{' '}
-                  {document.isSuccessful ? (
+                  {documentData.isSuccessful ? (
                     <Badge bg="success">
                       <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
                       Processed Successfully
@@ -178,7 +209,7 @@ const DocumentDetailPage = () => {
                 </ListGroup.Item>
                 <ListGroup.Item>
                   <strong>Processed Date:</strong>{' '}
-                  {formatDate(document.processedDate)}
+                  {formatDate(documentData.processedDate)}
                 </ListGroup.Item>
               </ListGroup>
             </Card.Body>
@@ -187,7 +218,7 @@ const DocumentDetailPage = () => {
                 <Button 
                   variant="outline-primary" 
                   onClick={handleDownloadJson}
-                  disabled={!document.isSuccessful}
+                  disabled={!documentData.isSuccessful}
                 >
                   <FontAwesomeIcon icon={faDownload} className="me-2" />
                   Download JSON
@@ -195,7 +226,7 @@ const DocumentDetailPage = () => {
                 <Button 
                   variant="outline-success" 
                   onClick={handleDownloadCsv}
-                  disabled={!document.isSuccessful}
+                  disabled={!documentData.isSuccessful}
                 >
                   <FontAwesomeIcon icon={faDownload} className="me-2" />
                   Download CSV
@@ -209,12 +240,12 @@ const DocumentDetailPage = () => {
           <Card className="shadow-sm">
             <Card.Header as="h5">Extracted Fields</Card.Header>
             <Card.Body>
-              {!document.isSuccessful ? (
+              {!documentData.isSuccessful ? (
                 <Alert variant="danger">
                   <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />
-                  Processing failed: {document.errorMessage || 'Unknown error'}
+                  Processing failed: {documentData.errorMessage || 'Unknown error'}
                 </Alert>
-              ) : document.fields.length === 0 ? (
+              ) : documentData.fields.length === 0 ? (
                 <Alert variant="info">
                   <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
                   No fields were extracted from this document.
@@ -230,7 +261,7 @@ const DocumentDetailPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {document.fields.map((field, index) => (
+                      {documentData.fields.map((field, index) => (
                         <tr key={index}>
                           <td><strong>{field.name}</strong></td>
                           <td>{field.value}</td>
@@ -275,12 +306,12 @@ const DocumentDetailPage = () => {
           <Card.Body>
             <Tab.Content>
               <Tab.Pane eventKey="table">
-                {!document.isSuccessful ? (
+                {!documentData.isSuccessful ? (
                   <Alert variant="danger">
                     <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />
-                    Processing failed: {document.errorMessage || 'Unknown error'}
+                    Processing failed: {documentData.errorMessage || 'Unknown error'}
                   </Alert>
-                ) : document.fields.length === 0 ? (
+                ) : documentData.fields.length === 0 ? (
                   <Alert variant="info">
                     <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
                     No structured data available for this document.
@@ -295,7 +326,7 @@ const DocumentDetailPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {document.fields.map((field, index) => (
+                        {documentData.fields.map((field, index) => (
                           <tr key={index}>
                             <td width="30%"><strong>{field.name}</strong></td>
                             <td>{field.value}</td>

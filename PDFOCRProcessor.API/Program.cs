@@ -45,27 +45,41 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure AWS services
-//builder.Services.AddSingleton<AmazonTextractClient>(_ =>
-//    new AmazonTextractClient(
-//        builder.Configuration["AWS:AccessKey"],
-//        builder.Configuration["AWS:SecretKey"],
-//        RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
+//Configure AWS services
+builder.Services.AddSingleton<AmazonTextractClient>(_ =>
+    new AmazonTextractClient(
+        builder.Configuration["AWS:AccessKey"],
+        builder.Configuration["AWS:SecretKey"],
+        RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
+
+//if (builder.Configuration.GetValue<bool>("UseAWS"))
+//{
+//    builder.Services.AddSingleton<AmazonTextractClient>(_ =>
+//        new AmazonTextractClient(
+//            builder.Configuration["AWS:AccessKey"],
+//            builder.Configuration["AWS:SecretKey"],
+//            RegionEndpoint.GetBySystemName(builder.Configuration["AWS:Region"] ?? "us-east-1")));
+//    builder.Services.AddScoped<IOcrService, TextractOcrService>();
+//}
+//else
+//{
+//    builder.Services.AddScoped<IOcrService, MockOcrService>();
+//}
 
 // Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://localhost:3000")
+        policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://34.198.178.143")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
 });
 
 // Register services
-//builder.Services.AddScoped<IOcrService, TextractOcrService>();
-builder.Services.AddScoped<IOcrService, MockOcrService>();
+builder.Services.AddScoped<IOcrService, TextractOcrService>();
+//builder.Services.AddScoped<IOcrService, MockOcrService>();
 builder.Services.AddScoped<ITextProcessor, TextProcessor>();
 builder.Services.AddScoped<IDocumentFormatter, DocumentFormatter>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
@@ -80,7 +94,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
