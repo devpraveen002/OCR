@@ -71,7 +71,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://localhost:3000")
+        policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "http://34.198.178.143")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -94,7 +94,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Amazon.Textract;
+﻿using Amazon.Textract;
 using Amazon.Textract.Model;
 using Microsoft.Extensions.Logging;
 using PDFOCRProcessor.Core.Interfaces;

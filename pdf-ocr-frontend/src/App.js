@@ -10,7 +10,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/ocr">
       <div className="App">
         <Navigation />
         <Container className="mt-4">

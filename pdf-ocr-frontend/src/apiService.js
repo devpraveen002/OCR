@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // const API_URL = process.env.REACT_APP_API_URL || 'https://localhost:7083';
 
-const API_URL = 'https://localhost:7083';
+const API_URL = 'http://34.198.178.143';
 
 const apiService = {
   // Document upload

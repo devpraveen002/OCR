@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
 using PDFOCRProcessor.Core.Interfaces;
 using PDFOCRProcessor.Core.Models;

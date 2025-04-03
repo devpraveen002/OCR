@@ -14,9 +14,8 @@ namespace PDFOCRProcessor.Infrastructure.Data
         public DbSet<DocumentFieldEntity> DocumentFields { get; set; }
         public DbSet<UserEntity> Users { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+       protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure one-to-many relationship between Document and DocumentFields
             modelBuilder.Entity<DocumentFieldEntity>()
                 .HasOne(df => df.Document)
                 .WithMany(d => d.Fields)
